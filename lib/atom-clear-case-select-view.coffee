@@ -7,12 +7,6 @@ class AtomClearCaseSelectView extends SelectListView
     super
     @addClass('overlay from-top')
 
-    @setItems items
-    #@setItems(['Hello', 'World'])
-
-    #@panel ?= atom.workspace.addModalPanel(item: this)
-    #@panel.show()
-    #@focusFilterEditor()
     @currentPane = atom.workspace.getActivePane()
 
     editor = atom.workspace.getActivePaneItem()
@@ -20,28 +14,24 @@ class AtomClearCaseSelectView extends SelectListView
     filePath = file?.path
     console.log ("file is: " + filePath)
 
-    @result = new Promise (resolve, reject) =>
-      @resolve = resolve
-      @reject = reject
-      @setup()
+    @setItems items
 
-  setup: ->
-    @show()
-
-  show: ->
-    #@filterEditorView.getModel().placeholderText = 'Initialize new repo where?'
+    @storeFocusedElement()
     @panel ?= atom.workspace.addModalPanel(item: this)
     @panel.show()
     @focusFilterEditor()
-    #@storeFocusedElement()
 
   viewForItem: (item) ->
-    "<li>#{item}</li>"
+    item.viewForItem()
 
-  hide: -> @panel?.destroy()
+  getFilterKey: ->
+    "description"
+
+  hide: ->
+    @panel?.destroy()
 
   confirmed: (item) ->
-    console.log("#{item} was selected")
+    console.log("#{item.description} was selected")
     @cancel()
 
   cancelled: ->
