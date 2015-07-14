@@ -1,5 +1,6 @@
 AtomClearCaseSelectView = require './atom-clear-case-select-view'
-IRView = require './atom-clear-case-IR-view'
+
+CCRunner = require './atom-clear-case-ccrunner'
 
 {CompositeDisposable} = require 'atom'
 {spawn} = require 'child_process'
@@ -34,17 +35,15 @@ module.exports = AtomClearCase =
   toggle: ->
     console.log 'AtomClearCase was toggled!'
 
-    sl = spawn 'sleep', ['-h']
-    sl.stdout.on 'data', (data) -> console.log data.toString().trim()
-    sl.stderr.on 'data', (data) -> console.log data.toString().trim()
+    ccrunner = CCRunner.get()
 
-    ls = spawn 'cat', ['/Users/trond/Projects/atom-clear-case/lsact-cview-output.txt']
-    # receive all output and process
-    ls.stdout.on 'data', (data) ->
-      console.log data.toString().trim()
-      lines = data.toString().split "\n"
-      acts = (new IRView(line) for line in lines)
-      @atomClearCaseView = new AtomClearCaseSelectView(acts)
-
-    # receive error messages and process
-    ls.stderr.on 'data', (data) -> console.log data.toString().trim()
+    promise = ccrunner.getActivityList()
+    promise.then(
+      (activities) ->
+        @atomClearCaseView = new AtomClearCaseSelectView(activities)
+      (error) ->
+        #atom.notifications.addInfo("Information!", detail: "Whatever!")
+        #atom.notifications.addSuccess("Success!", detail: "Yohoo!")
+        atom.notifications.addError("Atom ClearCase", detail: "Unable to fetch IR list: " + error)
+        #console.log error
+    )
