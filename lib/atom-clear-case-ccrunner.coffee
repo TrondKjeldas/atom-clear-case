@@ -53,3 +53,18 @@ class CCRunner
           reject "failed stderr"
 
       return promise
+
+    checkOut: (item) ->
+
+      promise = new Promise (resolve, reject) =>
+
+        ls = spawn 'ls', ['fail2'], cwd:"/Users/trond/Projects/atom-clear-case/"
+
+        ls.on 'close', (code) =>
+          console.log "code = " + code
+          if code == 0
+            resolve "Checkout succeded!"
+          else
+            reject "Checkout failed!"
+
+      return promise
