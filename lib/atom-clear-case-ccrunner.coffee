@@ -72,3 +72,20 @@ class CCRunner
             reject "Failed to check out #{fileName}!"
 
       return promise
+
+    checkIn: (filePath) ->
+
+      fileName = path.basename filePath
+
+      promise = new Promise (resolve, reject) =>
+
+        ls = spawn 'ls', ['fail2'], cwd:"/Users/trond/Projects/atom-clear-case/"
+
+        ls.on 'close', (code) =>
+          console.log "code = " + code
+          if code == 0
+            resolve "File #{fileName} successfully checked in!"
+          else
+            reject "Failed to check in #{fileName}!"
+
+        return promise

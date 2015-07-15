@@ -1,13 +1,10 @@
-AtomClearCaseSelectView = require './atom-clear-case-select-view'
-
-CCRunner = require './atom-clear-case-ccrunner'
+AtomClearCaseCommandView = require './atom-clear-case-select-command-view'
 
 {CompositeDisposable} = require 'atom'
 {spawn} = require 'child_process'
 
 module.exports = AtomClearCase =
-  atomClearCaseView: null
-  modalPanel: null
+  atomClearCaseCommandView: null
   subscriptions: null
   mystate: null
 
@@ -21,12 +18,9 @@ module.exports = AtomClearCase =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-clear-case:toggle': => @toggle()
 
   deactivate: ->
-    #@modalPanel.destroy()
     @subscriptions.dispose()
-    #@atomClearCaseView.destroy()
 
   serialize: ->
-    #atomClearCaseViewState: @atomClearCaseView.serialize()
 
   findAct: (line) ->
     words = line.split " "
@@ -39,14 +33,4 @@ module.exports = AtomClearCase =
     file = editor?.buffer.file
     filePath = file?.path
 
-    ccrunner = CCRunner.get()
-    promise = ccrunner.getActivityList(filePath)
-    promise.then(
-      (activities) ->
-        @atomClearCaseView = new AtomClearCaseSelectView(activities)
-      (error) ->
-        #atom.notifications.addInfo("Information!", detail: "Whatever!")
-        #atom.notifications.addSuccess("Success!", detail: "Yohoo!")
-        atom.notifications.addError("Atom ClearCase", detail: "Unable to fetch IR list: " + error)
-        #console.log error
-    )
+    @atomClearCaseCommandView = new AtomClearCaseCommandView(filePath)

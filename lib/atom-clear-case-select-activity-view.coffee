@@ -7,8 +7,6 @@ class AtomClearCaseSelectView extends SelectListView
     super
     @addClass('overlay from-top')
 
-    @currentPane = atom.workspace.getActivePane()
-
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
     @filePath = file?.path
@@ -16,10 +14,17 @@ class AtomClearCaseSelectView extends SelectListView
 
     @setItems items
 
+  show: ->
     @storeFocusedElement()
     @panel ?= atom.workspace.addModalPanel(item: this)
     @panel.show()
     @focusFilterEditor()
+
+    @result = new Promise (resolve, reject) =>
+         @resolve = resolve
+         @reject = reject
+
+    return @result
 
   viewForItem: (item) ->
     item.viewForItem()
@@ -32,15 +37,11 @@ class AtomClearCaseSelectView extends SelectListView
 
   confirmed: (item) ->
     console.log("#{item.description} was selected")
-    CCRunner.get().checkOut(@filePath).then(
-      (success) ->
-        atom.notifications.addSuccess("Atom ClearCase", detail: success)
-      (error) ->
-        atom.notifications.addError("Atom ClearCase", detail: error)
-    )
+    @resolve item
     @cancel()
 
   cancelled: ->
     console.log("This view was cancelled")
+    @reject
+    console.log "After reject"
     @hide()
-    @currentPane.activate()
