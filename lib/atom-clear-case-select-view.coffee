@@ -11,8 +11,8 @@ class AtomClearCaseSelectView extends SelectListView
 
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
-    filePath = file?.path
-    console.log ("file is: " + filePath)
+    @filePath = file?.path
+    console.log ("file is: " + @filePath)
 
     @setItems items
 
@@ -32,7 +32,7 @@ class AtomClearCaseSelectView extends SelectListView
 
   confirmed: (item) ->
     console.log("#{item.description} was selected")
-    CCRunner.get().checkOut(item).then(
+    CCRunner.get().checkOut(@filePath).then(
       (success) ->
         atom.notifications.addSuccess("Atom ClearCase", detail: success)
       (error) ->

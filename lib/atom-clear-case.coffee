@@ -35,9 +35,12 @@ module.exports = AtomClearCase =
   toggle: ->
     console.log 'AtomClearCase was toggled!'
 
-    ccrunner = CCRunner.get()
+    editor = atom.workspace.getActivePaneItem()
+    file = editor?.buffer.file
+    filePath = file?.path
 
-    promise = ccrunner.getActivityList()
+    ccrunner = CCRunner.get()
+    promise = ccrunner.getActivityList(filePath)
     promise.then(
       (activities) ->
         @atomClearCaseView = new AtomClearCaseSelectView(activities)

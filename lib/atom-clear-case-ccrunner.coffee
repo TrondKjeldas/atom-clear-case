@@ -1,5 +1,6 @@
+path = require 'path'
 {spawn} = require 'child_process'
-IRView = require './atom-clear-case-IR-view'
+ActivityInfoView = require './atom-clear-case-activity-view'
 
 module.exports =
 class CCRunner
@@ -16,7 +17,8 @@ class CCRunner
     constructor: () ->
       # body...
 
-    getActivityList: ->
+    # Fetch applicable IRs/activities for the specified file.
+    getActivityList: (filePath) ->
 
       promise = new Promise (resolve, reject) =>
         console.log "Spawning!"
@@ -27,7 +29,7 @@ class CCRunner
         ls.stdout.on 'data', (data) =>
           console.log data.toString().trim()
           lines = data.toString().split "\n"
-          acts = (new IRView(line) for line in lines)
+          acts = (new ActivityInfoView(line) for line in lines)
 
           # should also check exit code...
           promise2 = new Promise (resolve2, reject2) =>
@@ -54,7 +56,9 @@ class CCRunner
 
       return promise
 
-    checkOut: (item) ->
+    checkOut: (filePath) ->
+
+      fileName = path.basename filePath
 
       promise = new Promise (resolve, reject) =>
 
@@ -63,8 +67,8 @@ class CCRunner
         ls.on 'close', (code) =>
           console.log "code = " + code
           if code == 0
-            resolve "Checkout succeded!"
+            resolve "File #{fileName} successfully checked out!"
           else
-            reject "Checkout failed!"
+            reject "Failed to check out #{fileName}!"
 
       return promise
