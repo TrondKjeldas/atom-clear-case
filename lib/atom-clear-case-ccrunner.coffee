@@ -89,3 +89,23 @@ class CCRunner
             reject "Failed to check in #{fileName}!"
 
         return promise
+
+    lsvtree: (filePath) ->
+
+      fileName = path.basename filePath
+
+      promise = new Promise (resolve, reject) =>
+
+        try
+          vt = spawn 'lsvtree', [filePath], cwd:"/Users/trond/Projects/atom-clear-case/"
+
+          ls.on 'close', (code) =>
+            console.log "code = " + code
+            if code == 0
+              resolve "Showing version tree for #{fileName}"
+            else
+              reject "Unable to show version tree for #{fileName}"
+        catch error
+          reject "Unable to show version tree for #{fileName}"
+
+      return promise

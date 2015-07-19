@@ -1,4 +1,5 @@
 {SelectListView} = require 'atom-space-pen-views'
+path = require 'path'
 
 CCRunner = require './atom-clear-case-ccrunner'
 AtomClearCaseSelectView = require './atom-clear-case-select-activity-view'
@@ -11,6 +12,7 @@ class AtomClearCaseSelectCommandView extends SelectListView
     @addClass('overlay from-top')
 
     @filePath = filePath
+    @fileName = path.basename filePath
 
     commands = [
       {
@@ -20,6 +22,10 @@ class AtomClearCaseSelectCommandView extends SelectListView
       {
         name: "Checkin"
         func: => @checkin()
+      }
+      {
+        name: "Version Tree"
+        func: => @lsvtree()
       }
       ]
 
@@ -31,7 +37,7 @@ class AtomClearCaseSelectCommandView extends SelectListView
     @focusFilterEditor()
 
   viewForItem: (item) ->
-    "<li>#{item.name}</li>"
+    "<li>#{item.name} file: #{@fileName}</li>"
 
   hide: ->
     @panel?.destroy()
@@ -76,8 +82,12 @@ class AtomClearCaseSelectCommandView extends SelectListView
 
     if @operation == "co"
       promise = CCRunner.get().checkOut(@filePath)
-    else
+    else if @operation == "ci"
       promise = CCRunner.get().checkIn(@filePath)
+    else if @operation == "vt"
+      promise = CCRunner.get().lsvtree(@filePath)
+    else
+      atom.notifications.addError("Atom ClearCase", detail: "unknown operation: #{@operation}")
 
     promise.then(
       (success) =>
@@ -95,3 +105,8 @@ class AtomClearCaseSelectCommandView extends SelectListView
     console.log "checkin called for file #{@filePath}!"
     @operation = "ci"
     @selectActivity()
+
+  lsvtree: ->
+    console.log "lsvtree called for file #{@filePath}!"
+    @operation = "vt"
+    @performCCOperation()
